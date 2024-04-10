@@ -1,0 +1,6 @@
+@My_First_Api_.Net_HostAddress = http://localhost:5073
+
+GET {{My_First_Api_.Net_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
