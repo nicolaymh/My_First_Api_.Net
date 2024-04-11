@@ -42,6 +42,41 @@ namespace My_First_Api_.Net.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates a new client and adds it to the client list.
+        /// </summary>
+        /// <param name="client">The client object to be created.</param>
+        /// <returns>A JSON response indicating the result of the operation.</returns>
+        [HttpPost]
+        [Route("create")]
+        public IActionResult CreateClient([FromBody] Client client)
+        {
+            try
+            {
+                var clients = _cache.Get<List<Client>>(ClientCacheKey) ?? new List<Client>();
 
+                string uniqueId = Guid.NewGuid().ToString();
+
+                client.Id = uniqueId;
+                clients.Add(client);
+
+                _cache.Set(ClientCacheKey, clients);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Client created successfully.",
+                    result = client
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }
