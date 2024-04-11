@@ -31,14 +31,22 @@ namespace My_First_Api_.Net.Controllers
 
                 if (clients == null)
                 {
-                    return NotFound("The client list is empty or does not exist.");
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "The client list is empty or does not exist."
+                    });
                 }
 
                 return Ok(clients);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
             }
         }
 
@@ -71,7 +79,54 @@ namespace My_First_Api_.Net.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet]
+        [Route("getClient{id}")]
+        public IActionResult GetClientById(string id)
+        {
+            try
+            {
+                if (id is null)
+                {
+                    return BadRequest(
+                        new
+                        {
+                            success = false,
+                            message = "Client id is required."
+
+                        });
+                }
+
+                var clients = _cache.Get<List<Client>>(ClientCacheKey) ?? new List<Client>();
+                var client = clients.FirstOrDefault(c => c.Id == id);
+
+                if (client is null)
+                {
+                    return NotFound(
+                        new
+                        {
+                            success = false,
+                            message = "Client not found."
+
+                        });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    result = client
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
                 {
                     success = false,
                     message = ex.Message
