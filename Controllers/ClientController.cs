@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using My_First_Api_.Net.Models;
+using System.Diagnostics.Contracts;
 
 namespace My_First_Api_.Net.Controllers
 {
@@ -18,9 +19,12 @@ namespace My_First_Api_.Net.Controllers
         }
 
         /// <summary>
-        /// Retrieves the list of all clients.
+        /// Retrieves a list of all clients.
         /// </summary>
-        /// <returns>The list of clients if available; otherwise, a 404 Not Found response.</returns>
+        /// <returns>A list of all clients.</returns>
+        /// <response code="200">Returns the list of clients.</response>
+        /// <response code="404">If the client list is empty or does not exist.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
         [HttpGet]
         [Route("list")]
         public ActionResult<List<Client>> ListAllClients()
@@ -51,10 +55,12 @@ namespace My_First_Api_.Net.Controllers
         }
 
         /// <summary>
-        /// Creates a new client and adds it to the client list.
+        /// Creates a new client.
         /// </summary>
-        /// <param name="client">The client object to be created.</param>
-        /// <returns>A JSON response indicating the result of the operation.</returns>
+        /// <param name="client">The client information to create.</param>
+        /// <returns>The newly created client.</returns>
+        /// <response code="200">Client created successfully.</response>
+        /// <response code="500">If an unexpected error occurs during creation.</response>
         [HttpPost]
         [Route("create")]
         public IActionResult CreateClient([FromBody] Client client)
@@ -142,6 +148,15 @@ namespace My_First_Api_.Net.Controllers
             }
         }
 
+        /// <summary>
+        /// Updates a client's information.
+        /// </summary>
+        /// <param name="id">Client ID.</param>
+        /// <param name="updateClient">Updated client data.</param>
+        /// <response code="200">Client updated successfully.</response>
+        /// <response code="400">Invalid client data or ID.</response>
+        /// <response code="404">Client not found.</response>
+        /// <response code="500">Unexpected error during update.</response>
         [HttpPut]
         [Route("updateClient/{id}")]
         public IActionResult UpdateClient(string id, [FromBody] Client updateClient)
@@ -161,7 +176,7 @@ namespace My_First_Api_.Net.Controllers
                 var clients = _cache.Get<List<Client>>(ClientCacheKey) ?? new List<Client>();
                 var clientIndex = clients.FindIndex(c => c.Id == id);
 
-                if ( clientIndex == -1)
+                if (clientIndex == -1)
                 {
                     return NotFound(new
                     {
@@ -195,6 +210,59 @@ namespace My_First_Api_.Net.Controllers
             }
         }
 
+        /// <summary>
+        /// Deletes a client by ID.
+        /// </summary>
+        /// <param name="id">The ID of the client to delete.</param>
+        /// <response code="200">Client successfully deleted.</response>
+        /// <response code="400">If the ID parameter is null.</response>
+        /// <response code="404">If no client is found with the specified ID.</response>
+        /// <response code="500">If an unexpected error occurs.</response>
+        [HttpDelete]
+        [Route("deleteClient/{id}")]
+        public IActionResult DeleteClient(string id)
+        {
+            try
+            {
+                if (id is null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Id is required."
+                    });
+                }
 
+                var clients = _cache.Get<List<Client>>(ClientCacheKey) ?? new List<Client>();
+                var client = clients.FirstOrDefault(c => c.Id == id);
+
+                if (client is null)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Client not found."
+                    });
+                }
+
+                clients.Remove(client);
+                _cache.Set(ClientCacheKey, clients);
+
+                return Ok(
+                    new
+                    {
+                        success = true,
+                        message = "Client successfully deleted"
+                    });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
     }
 }
