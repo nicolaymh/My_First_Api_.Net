@@ -8,10 +8,9 @@ The project structure is as follows:
 
 My_First_Api_.Net/
 ├── Controllers/
-│ └── ClientController.cs
+│   └── ClientController.cs
 └── Models/
-└── Client.cs
-
+    └── Client.cs
 
 - **Controllers**: Contains the `ClientController`, which handles client-related HTTP requests.
 - **Models**: Contains the `Client` class, defining the structure of client data.
