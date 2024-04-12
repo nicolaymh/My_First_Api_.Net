@@ -87,8 +87,16 @@ namespace My_First_Api_.Net.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a client by ID.
+        /// </summary>
+        /// <param name="id">The ID of the client.</param>
+        /// <response code="200">Client found.</response>
+        /// <response code="400">ID not provided.</response>
+        /// <response code="404">Client not found.</response>
+        /// <response code="500">Internal server error.</response>
         [HttpGet]
-        [Route("getClient{id}")]
+        [Route("getClient/{id}")]
         public IActionResult GetClientById(string id)
         {
             try
@@ -133,5 +141,60 @@ namespace My_First_Api_.Net.Controllers
                 });
             }
         }
+
+        [HttpPut]
+        [Route("updateClient/{id}")]
+        public IActionResult UpdateClient(string id, [FromBody] Client updateClient)
+        {
+            try
+            {
+                if (updateClient == null || updateClient.Id != id)
+                {
+                    return BadRequest(
+                        new
+                        {
+                            success = false,
+                            message = "Invalid client data."
+                        });
+                }
+
+                var clients = _cache.Get<List<Client>>(ClientCacheKey) ?? new List<Client>();
+                var clientIndex = clients.FindIndex(c => c.Id == id);
+
+                if ( clientIndex == -1)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Client not found."
+                    });
+                }
+
+                clients[clientIndex].FirstName = updateClient.FirstName;
+                clients[clientIndex].LastName = updateClient.LastName;
+                clients[clientIndex].Age = updateClient.Age;
+                clients[clientIndex].Email = updateClient.Email;
+                clients[clientIndex].Phone = updateClient.Phone;
+
+                _cache.Set(ClientCacheKey, clients);
+
+                return Ok(new
+                {
+                    succes = true,
+                    message = "Client successfully updated",
+                    result = updateClient
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
+        }
+
+
     }
 }
