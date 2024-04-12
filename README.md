@@ -6,11 +6,13 @@ This is a simple client management API built with ASP.NET Core. It allows you to
 
 The project structure is as follows:
 
+```bash
 My_First_Api_.Net/
 ├── Controllers/
 │   └── ClientController.cs
 └── Models/
     └── Client.cs
+```
 
 - **Controllers**: Contains the `ClientController`, which handles client-related HTTP requests.
 - **Models**: Contains the `Client` class, defining the structure of client data.
