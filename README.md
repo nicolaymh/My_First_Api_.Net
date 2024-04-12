@@ -7,10 +7,8 @@ This is a simple client management API built with ASP.NET Core. It allows you to
 The project structure is as follows:
 
 My_First_Api_.Net/
-│
 ├── Controllers/
 │ └── ClientController.cs
-│
 └── Models/
 └── Client.cs
 
