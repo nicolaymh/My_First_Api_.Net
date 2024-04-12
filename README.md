@@ -46,10 +46,6 @@ This API requires ASP.NET Core and Microsoft.Extensions.Caching.Memory for cachi
 
 To use this API, run the project and make HTTP requests to the defined routes in the `ClientController`.
 
-## Contributions
-
-Contributions are welcome! If you'd like to improve this API or report issues, feel free to open an issue or submit a pull request on GitHub.
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
